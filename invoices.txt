@@ -1,0 +1,59 @@
+Oliver Firth
+Foundation Service x4 = £60
+S = 04/10/24
+S = 10/10/24
+S = 17/10/24
+S = 24/10/24
+
+Fergus
+Foundation Service x4 = £60
+S = 07/10/24
+S = 14/10/24
+S = 21/10/24
+S = 28/10/24
+
+Alfie Stockton
+Foundation Service x4 = £60
+S = 09/10/24
+S = 15/10/24
+S = 22/10/24
+S = 31/10/24
+
+Dylan Cunningham
+Excel Service x4 = £90.0
+S = 10/10/24, C = 10/10/24
+S = 17/10/24, C = 17/10/24
+S = 22/10/24, C = 22/10/24
+S = 31/10/24, C = 31/10/24
+
+Saif Ulhaq
+Excel Service x2 = £45.0
+S = 13/10/24, C = 13/10/24
+S = 20/10/24, C = 20/10/24
+
+Jovan Douglas
+Foundation Service x2 = £30
+S = 18/10/24
+S = 25/10/24
+
+Abdullah Balogun
+Foundation Service x2 = £30
+S = 18/10/24
+S = 25/10/24
+
+Olly Bradley
+Foundation Service x4 = £60
+S = 21/10/24
+S = 24/10/24
+S = 28/10/24
+S = 31/10/24
+
+Ethan Goldsbro
+Foundation Service x1 = £15
+S = 22/10/24
+
+Yousef Shimal
+Foundation Service x2 = £30
+S = 27/10/24
+
+Total = £480.0
