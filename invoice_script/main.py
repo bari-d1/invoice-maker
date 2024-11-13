@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 from dateutil.parser import isoparse
 from itertools import zip_longest
 
+
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 total = 0
@@ -51,21 +53,52 @@ def main():
     with open("token.json", "w") as token:
       token.write(creds.to_json())
 
-def get_list_of_calenders():
-    pass
+def get_list_of_calendars(creds):
+    """
+    Retrieves and returns a list of calendars from the authenticated Google account.
+    
+    Parameters:
+    - creds: Credentials object (from google-auth) for authorized access.
+    
+    Returns:
+    - List of calendar summaries and IDs.
+    """
+    try:
+        # Build the service for the Calendar API
+        service = build("calendar", "v3", credentials=creds)
+        
+        # Fetch the list of calendars
+        calendars_result = service.calendarList().list().execute()
+        calendars = calendars_result.get('items', [])
+        
+        # Check if there are any calendars found
+        if not calendars:
+            print("No calendars found.")
+            return []
+        
+        # Print and return the list of calendars
+        for calendar in calendars:
+            print(f"Calendar Name: {calendar['summary']} - ID: {calendar['id']}")
+        
+        return calendars
 
-def get_events(year, month):
-    global creds
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
+
+def get_events(creds, year, month, calender_id):
     try:
         service = build("calendar", "v3", credentials=creds)
 
         # Call the Calendar API
         # now = datetime.now(timezone.utc).isoformat()
-        year = year
-        month = month
+        year = int(year)
+        month = int(month)
 
         # Set timeMin to the first day of the month at 00:00 UTC
         timeMin = datetime(year, month, 1, tzinfo=timezone.utc).isoformat()
+        # print(timeMin)
 
         # Set timeMax to the first day of the next month at 00:00 UTC
         # This will exclude any events starting at midnight on the first of the following month
@@ -77,7 +110,7 @@ def get_events(year, month):
         events_result = (
             service.events()
             .list(
-                calendarId="c_1e119ea08cf4a6a222de44003e8883b3b7dd3aeac41f9a161ecd1328b1a32790@group.calendar.google.com",
+                calendarId=calender_id,
                 timeMin=timeMin,
                 timeMax=timeMax,
                 singleEvents=True,
@@ -187,23 +220,30 @@ def get_student_events(student, events):
     return student_events
    
 
-def create_invoice(student, year, month, file):
-    # Student Name
-    # Service x(no of lessons taught) = service rate * no of lessons taught
-    # if foundation student:
-    # S = date of lesson
-    # if excel student:
-    # S = date of lesson , C = date of checkin
+def create_invoice(student, year, month, file_path, creds, calendar_id):
+    """
+    Generates an invoice for a student for a specific year and month and saves it to a file.
+    
+    Args:
+    - student (str): The student identifier.
+    - year (int): The year for the invoice.
+    - month (int): The month for the invoice.
+    - file_path (str): The path to the file where the invoice will be saved.
+    
+    Returns:
+    - str: The file path where the invoice is saved.
+    """
+    global total
     invoice = ""
     try:
         name = students[student.lower()][0]
     except KeyError:
         return "Student not found"
+    
     service = students[student.lower()][1]
-    no_of_lessons = lessons_per_student(student, check_completed(get_student_events(student, get_events(year, month))))
-    student_events = get_student_events(student, get_events(year, month))
-    global total
-
+    no_of_lessons = lessons_per_student(student, check_completed(get_student_events(student, get_events(creds, year, month, calendar_id))))
+    student_events = get_student_events(student, get_events(creds, year, month, calendar_id))
+    amount = 0
     if service.lower().strip() == "foundation":
         lesson_dates = ""
         amount = no_of_lessons * 15
@@ -219,7 +259,7 @@ def create_invoice(student, year, month, file):
         lesson_dates = ""
         amount = no_of_lessons * 22.50
         total += amount
-        checkin_events = list_of_checkin(student, check_completed(get_student_events(student, get_events(year, month))))
+        checkin_events = list_of_checkin(student, check_completed(get_student_events(student, get_events(creds, year, month, calendar_id))))
         for s_event, c_event in zip_longest(check_completed(student_events), checkin_events, fillvalue=None):
             # Format the date for the S event, if it exists
             if s_event is not None:
@@ -242,20 +282,19 @@ def create_invoice(student, year, month, file):
         invoice = f"""{name}\n{service} Service x{no_of_lessons} = £{amount}\n{lesson_dates}"""
     
     # Write invoice to the file
-    file.write(invoice + "\n")
+    with open(file_path, "a") as file:  # Open the file in append mode to add more invoices
+        file.write(invoice + "\n")
+    
+    return file_path,amount
 
 if __name__ == "__main__":
     main()
-    events = get_events(2024, 10)
-    completed = check_completed(events)
-    my_students = get_students(events)
+    # events = get_events(2024, 10)
+    # completed = check_completed(events)
+    # my_students = get_students(events)
     
     # Open a file for writing invoices
-    with open("invoices.txt", "w") as file:
-        for student in my_students:
-            create_invoice(student, 2024, 10, file)
-    
-        # Write the total at the bottom
-        file.write(f"Total = £{total}\n")
 
-    print(f"Invoices have been written to 'invoices.txt'. Total = £{total}")
+
+
+    # print(f"Invoices have been written to 'invoices.txt'. Total = £{total}")

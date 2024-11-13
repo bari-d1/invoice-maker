@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('index') }}">
+        <button>Home</button>
+    </a>
+    <button onclick="window.history.back()">Back</button>
+    <div class="container">
+    <h2>Select a Calendar</h2>
+    <form action="{{ url_for('profile') }}" method="POST">
+        <label for="calendar">Choose a calendar:</label>
+        <select name="calendar_id" id="calendar">
+            {% for calendar in calendars %}
+                <option value="{{ calendar['id'] }}">{{ calendar['summary'] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Next</button>
+    </form>       
+    </div>
+
+</body>
+</html>
